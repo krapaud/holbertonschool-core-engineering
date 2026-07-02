@@ -15,11 +15,13 @@ async def homepage(request):
 
 
 async def chat_js(request):
-    return FileResponse(os.path.join(BASE_DIR, "chat.js"), media_type="application/javascript")
+    path = os.path.join(BASE_DIR, "chat.js")
+    return FileResponse(path, media_type="application/javascript")
 
 
 async def style_css(request):
-    return FileResponse(os.path.join(BASE_DIR, "styles.css"), media_type="text/css")
+    path = os.path.join(BASE_DIR, "styles.css")
+    return FileResponse(path, media_type="text/css")
 
 
 async def websocket_endpoint(websocket):
