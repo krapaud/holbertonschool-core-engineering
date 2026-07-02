@@ -2,6 +2,7 @@
 """WebSocket server with broadcast message delivery."""
 import asyncio
 import websockets
+from websockets.exceptions import ConnectionClosed
 
 CLIENTS = set()
 
@@ -10,21 +11,23 @@ async def broadcast(message):
     for client in set(CLIENTS):
         try:
             await client.send(f"B:{message}")
-        except websockets.exceptions.ConnectionClosed:
+        except ConnectionClosed:
             CLIENTS.discard(client)
 
 
-async def handler(websocket):
+async def connection_handler(websocket):
     CLIENTS.add(websocket)
     try:
         async for message in websocket:
             await broadcast(message)
+    except ConnectionClosed:
+        pass
     finally:
         CLIENTS.discard(websocket)
 
 
 async def main():
-    async with websockets.serve(handler, "localhost", 8765):
+    async with websockets.serve(connection_handler, "localhost", 8765):
         await asyncio.Future()
 
 
