@@ -2,19 +2,23 @@
 """WebSocket server with message validation."""
 import asyncio
 import websockets
+from websockets.exceptions import ConnectionClosed
 
 
-async def handler(websocket):
-    async for message in websocket:
-        stripped = message.strip()
-        if stripped == "":
-            await websocket.send("ERR:EMPTY")
-        else:
-            await websocket.send(f"OK:{stripped}")
+async def connection_handler(websocket):
+    try:
+        async for message in websocket:
+            stripped = message.strip()
+            if stripped == "":
+                await websocket.send("ERR:EMPTY")
+            else:
+                await websocket.send(f"OK:{stripped}")
+    except ConnectionClosed:
+        pass
 
 
 async def main():
-    async with websockets.serve(handler, "localhost", 8765):
+    async with websockets.serve(connection_handler, "localhost", 8765):
         await asyncio.Future()
 
 
